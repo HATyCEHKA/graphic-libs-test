@@ -14,11 +14,19 @@ import {setRotationAngle, rotationAngle, isSvg, setIsSvg} from "./util/coord.uti
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements AfterViewInit {
+  protected konvaJs: boolean = false;
   protected svgJs: boolean = false;
   protected fabricjs: boolean = false;
   protected pixi: boolean = false;
 
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+
+  createKonvaJs() {
+    this.closeAll();
+    this.konvaJs = true;
+
+    this.cdr.detectChanges();
+  }
 
   createSvgJs() {
     this.closeAll();
@@ -65,4 +73,6 @@ export class AppComponent implements AfterViewInit {
   protected set isSvg(value) {
     setIsSvg(value);
   }
+
+  protected isPixiAntialias = false;
 }

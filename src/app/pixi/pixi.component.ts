@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  ElementRef,
+  ElementRef, Input,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -32,27 +32,25 @@ export class PixiComponent implements OnInit, OnDestroy {
   private rects: ViewContainer[] = [];
   private animateTicker: Ticker | null = null;
 
-  ngOnInit() {
+  @Input()
+  isAntialias:boolean = false;
+
+  async ngOnInit() {
     this.app = new Application();
-    this.app
-      .init({
+    await this.app.init({
         width: canvasWidth,
         height: canvasHeight,
         background: '#ffffff',
         //preference: 'webgpu',
         //preference: 'webgl',
-        antialias: true,
+        antialias: this.isAntialias,
         //autoDensity: true,
         powerPreference: 'high-performance',
         //powerPreference: 'low-power',
         //resolution: 1, //лучше не трогать, появляются тормоза и никаких улучшений
-        useBackBuffer: true
-      })
-      .finally(async () => {
-        this.redactor.nativeElement.appendChild(this.app!.canvas);
-
-        //await this.createScene(1000);
+        //useBackBuffer: true
       });
+    this.redactor.nativeElement.appendChild(this.app!.canvas);
   }
 
   ngOnDestroy(): void {
@@ -107,6 +105,7 @@ export class PixiComponent implements OnInit, OnDestroy {
         console.log("3 of 5. Finished all loadSVG promises");
         for (let i = 0; i < count; i++) {
           let loadedSVG = results[i];
+          console.log(loadedSVG);
           const rect = new Graphics(loadedSVG);
           //const rect = new Sprite(loadedSVG);
 

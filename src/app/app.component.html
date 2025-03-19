@@ -1,5 +1,7 @@
 <div>
-  <button (click)="createSvgJs()">create SVG.js</button>
+  <button (click)="createKonvaJs()">create Konva.js</button>
+  <button (click)="konvaJs = false">remove Konva.js</button>
+  <button (click)="createSvgJs()" style="margin-left: 20px">create SVG.js</button>
   <button (click)="svgJs = false">remove SVG.js</button>
   <button (click)="createFabricJs()" style="margin-left: 20px">create fabricjs</button>
   <button (click)="fabricjs = false">remove fabricjs</button>
@@ -11,7 +13,11 @@
 
   <span style="margin-left: 20px">Use svg instead of rect</span>
   <input type="checkbox" [(ngModel)]="isSvg">
+
+  <span style="margin-left: 20px">Pixi Antialias</span>
+  <input type="checkbox" [(ngModel)]="isPixiAntialias">
 </div>
 <svg-js *ngIf="svgJs"></svg-js>
 <fabric-js *ngIf="fabricjs"></fabric-js>
-<pixi *ngIf="pixi"></pixi>
+<pixi *ngIf="pixi" [isAntialias]="isPixiAntialias"></pixi>
+<konva-js *ngIf="konvaJs"></konva-js>
