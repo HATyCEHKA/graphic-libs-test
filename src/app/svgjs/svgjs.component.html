@@ -1,4 +1,10 @@
-<button (click)="createAnimations(1000)">1000</button>
-<button (click)="createAnimations(5000)">5000</button>
-<button (click)="createAnimations(10000)">10000</button>
+<div style="margin: 20px 0">
+  <button (click)="changeAnimation()" style="margin-right: 20px">{{isAnimation? "stop" : "start"}} animation</button>
+  <button (click)="setZoom(1)" style="margin-right: 20px">zoom 100%</button>
+  <button (click)="setZoom(3)" style="margin-right: 20px">zoom 300%</button>
+  <button (click)="setZoom(6)" style="margin-right: 20px">zoom 600%</button>
+  <button (click)="createScene(1000)">1000</button>
+  <button (click)="createScene(5000)">5000</button>
+  <button (click)="createScene(10000)">10000</button>
+</div>
 <div #redactor class="svgjs" id="svgjs"></div>

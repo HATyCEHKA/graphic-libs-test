@@ -9,12 +9,12 @@ import {
 import {BaseFabricObject, Canvas, Point, Rect, util, FabricObject, loadSVGFromString} from 'fabric';
 import {
   canvasHeight,
-  canvasWidth,
+  canvasWidth, fill,
   getCoordinates, isSvg,
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, svgFilePath
+  squaresPerRow, stroke, svgFilePath
 } from '../util/coord.util';
 import {HttpClient} from "@angular/common/http";
 import {firstValueFrom} from "rxjs";
@@ -49,7 +49,7 @@ export class FabricjsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    cancelAnimationFrame(this.animationFrameId);
+    this.clearAnimations();
   }
 
   protected async createScene(count: number) {
@@ -66,7 +66,7 @@ export class FabricjsComponent implements OnInit, OnDestroy {
     console.log("5 of 5. Finish creating!", (Date.now()-t)/ 1000 + "sec");
 
     if(this.isAnimation){
-      this.isAnimation = false;
+      this.changeAnimation();
       this.changeAnimation();
     }
   }
@@ -77,7 +77,7 @@ export class FabricjsComponent implements OnInit, OnDestroy {
       this.animateObjects(this.rects);
     }
     else
-      cancelAnimationFrame(this.animationFrameId);
+      this.clearAnimations();
   }
 
   protected changeInteraction(){
@@ -135,10 +135,10 @@ export class FabricjsComponent implements OnInit, OnDestroy {
     else{
       let sel = this.canvas?.selection!;
       for (let i = 0; i < count; i++) {
-        let rect = new Rect({width: squareSize, height: squareSize, stroke: '#951f1f', fill: 'transparent'});
+        let rect = new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: fill});
 
         let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-        rect.setXY(new Point(c.x + squareSize / 2 + spacing, c.y + squareSize / 2));
+        rect.setXY(new Point(c.x + squareSize / 2 + spacing, c.y + squareSize / 2 + spacing));
 
         rect.selectable = sel;
         this.canvas?.add(rect);
@@ -160,5 +160,9 @@ export class FabricjsComponent implements OnInit, OnDestroy {
     };
 
     this.animationFrameId = requestAnimationFrame(changeAngle);
+  }
+
+  private clearAnimations(){
+    cancelAnimationFrame(this.animationFrameId);
   }
 }

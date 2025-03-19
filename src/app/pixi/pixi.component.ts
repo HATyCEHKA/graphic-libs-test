@@ -9,12 +9,12 @@ import {
 import {Application, Assets, Graphics, Sprite, Ticker} from 'pixi.js';
 import {
   canvasHeight,
-  canvasWidth,
+  canvasWidth, fill,
   getCoordinates, isSvg,
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, svgFilePath
+  squaresPerRow, stroke, svgFilePath
 } from '../util/coord.util';
 import {ViewContainer} from "pixi.js/lib/scene/view/ViewContainer";
 
@@ -128,12 +128,12 @@ export class PixiComponent implements OnInit, OnDestroy {
     }
     else {
       for (let i = 0; i < count; i++) {
-        const rect = new Graphics().rect(0, 0, squareSize, squareSize).stroke('#951f1f');
+        const rect = new Graphics().rect(0, 0, squareSize, squareSize).stroke(stroke).fill(fill);
 
         let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
 
         rect.pivot.set(rect.width / 2, rect.height / 2);
-        rect.position.set(c.x + rect.width / 2 + spacing, c.y + rect.height / 2);
+        rect.position.set(c.x + rect.width / 2 + spacing, c.y + rect.height / 2 + spacing);
 
         this.rects.push(rect);
       }

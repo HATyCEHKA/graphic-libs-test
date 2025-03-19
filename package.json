@@ -19,6 +19,7 @@
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
     "@svgdotjs/svg.js": "^3.2.4",
+    "@svgdotjs/svg.panzoom.js": "^2.1.2",
     "earcut": "^3.0.1",
     "fabric": "^6.6.1",
     "konva": "^9.3.19",

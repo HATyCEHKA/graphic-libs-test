@@ -2,13 +2,25 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
-  ElementRef,
+  ElementRef, inject,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from '@angular/core';
-import { Svg, Rect, SVG, Runner } from '@svgdotjs/svg.js';
-import { getCoordinates } from '../util/coord.util';
+import {Svg, Rect, SVG, Runner, Point, Element} from '@svgdotjs/svg.js';
+import '@svgdotjs/svg.panzoom.js'
+import {
+  canvasHeight,
+  canvasWidth, fill,
+  getCoordinates,
+  isSvg,
+  rotationAngle,
+  spacing,
+  squareSize,
+  squaresPerRow, stroke,
+  svgFilePath
+} from '../util/coord.util';
+import {firstValueFrom} from "rxjs";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
   standalone: true,
@@ -19,55 +31,98 @@ import { getCoordinates } from '../util/coord.util';
 export class SvgJsComponent implements AfterViewInit, OnDestroy {
   @ViewChild('redactor')
   protected redactor!: ElementRef;
-
   protected canva: Svg | undefined;
+  protected isAnimation = false;
   private animations: Runner[] = [];
-  private rects: Rect[] = [];
+  private rects: Element[] = [];
+  private httpClient = inject(HttpClient);
 
   ngAfterViewInit(): void {
-    this.createSvgJs();
+    this.canva = SVG().addTo(this.redactor.nativeElement).size(canvasWidth, canvasHeight).viewbox(0,0, canvasWidth, canvasHeight).panZoom({panning: false});
   }
 
-  createSvgJs() {
-    this.canva = SVG().addTo(this.redactor.nativeElement).size(1000, 10000);
-    if (this.canva) {
-      this.animateAllRects(this.createManyRect());
+  ngOnDestroy(): void {
+    this.clearCanva();
+  }
+
+  protected async createScene(count: number) {
+    let t = Date.now();
+    console.log("=========================")
+    console.log("1 of 5. Start creating...");
+    if(this.rects.length)
+      this.clearCanva();
+
+    let rects = await this.createObjects(count);
+    console.log("5 of 5. Finish creating!", (Date.now()-t)/ 1000 + "sec");
+
+    if(this.isAnimation){
+      this.changeAnimation();
+      this.changeAnimation();
     }
   }
 
-  private createManyRect(count: number = 1000): Rect[] {
-    const rects: Rect[] = [];
-    const squareSize = 10;
-    const spacing = 5;
-    const squaresPerRow = 50;
-
-    for (let i = 0; i < count; i++) {
-      const { x, y } = getCoordinates(i, squaresPerRow, squareSize, spacing);
-
-      // Создаём квадрат с заданными размерами, цветом и позицией
-      const rect = this.canva!.rect(squareSize, squareSize)
-        .fill('#3498db')
-        .move(x, y);
-      rects.push(rect);
-    }
-    return rects;
+  protected changeAnimation(){
+     this.isAnimation = !this.isAnimation;
+     if(this.isAnimation)
+       this.animateObjects(this.rects);
+     else
+       this.clearAnimations();
   }
 
-  private animateAllRects(rects: Rect[]): void {
+  protected setZoom(zoom: number) {
+    this.canva!.zoom(zoom, new Point(0,0));
+  }
+
+  private async createObjects(count: number): Promise<Element[]> {
+    if(isSvg) {
+      let svgContent = await firstValueFrom<string>(this.httpClient.get(svgFilePath, {responseType: 'text'}));
+      for (let i = 0; i < count; i++) {
+        let rect  = this.canva!.group().svg(svgContent);
+
+        let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
+        let box = rect.bbox();
+        let scale = Math.min(squareSize / box.width, squareSize / box.height);
+        //console.log("Size: ", box.width, "; Scale: ", scale);
+        rect.move(c.x + spacing, c.y);
+        rect.scale(scale, scale, c.x + spacing, c.y);
+        this.rects.push(rect);
+      }
+      console.log("4 of 5. Created all objects");
+    }
+    else{
+      for (let i = 0; i < count; i++) {
+        const rect = this.canva!.rect(squareSize, squareSize).stroke(stroke).fill(fill);
+
+        let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
+        rect.move(c.x + spacing, c.y + spacing);
+        this.rects.push(rect);
+      }
+      console.log("4 of 5. Created all objects");
+    }
+    return this.rects;
+  }
+
+  private animateObjects(rects: Element[]): void {
     rects.forEach((rect) => {
-      const animation = rect.animate().rotate(360).loop(); // Сохраняем анимацию
+      const animation = rect.animate({
+        duration: 10000/rotationAngle,
+        delay: 0,
+        when: 'now',
+        swing: true,
+        times: 1,
+        wait: 0
+      }).ease('-').rotate(360).loop(); // Сохраняем анимацию
       this.animations.push(animation); // Добавляем анимацию в массив
     });
   }
 
-  createAnimations(count: number) {
-    this.clearCanva(); // Очищаем холст перед созданием новых анимаций
-    this.animateAllRects(this.createManyRect(count));
+  private clearAnimations(){
+    this.animations.forEach((animation) => animation.finish());
+    this.animations = [];
   }
 
   private clearCanva(): void {
-    this.animations.forEach((animation) => animation.finish());
-    this.animations = [];
+    this.clearAnimations();
 
     this.rects.forEach((rect) => rect.remove());
     this.rects = [];
@@ -75,9 +130,5 @@ export class SvgJsComponent implements AfterViewInit, OnDestroy {
     if (this.canva) {
       this.canva.clear();
     }
-  }
-
-  ngOnDestroy(): void {
-    this.clearCanva();
   }
 }

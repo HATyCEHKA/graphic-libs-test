@@ -30,3 +30,5 @@ export function setIsSvg(value: boolean) {
 }
 
 export const svgFilePath = 'assets/fan.svg';
+export const stroke='#951f1f';
+export const fill='transparent';
