@@ -1,0 +1,17 @@
+<div>
+  <button (click)="createSvgJs()">create SVG.js</button>
+  <button (click)="svgJs = false">remove SVG.js</button>
+  <button (click)="createFabricJs()" style="margin-left: 20px">create fabricjs</button>
+  <button (click)="fabricjs = false">remove fabricjs</button>
+  <button (click)="createPixi()" style="margin-left: 20px">create pixi</button>
+  <button (click)="pixi = false">remove pixi</button>
+
+  <span style="margin-left: 20px">Rotation speed: </span>
+  <input type="number" [(ngModel)]="rotationAngle" style="width: 40px">
+
+  <span style="margin-left: 20px">Use svg instead of rect</span>
+  <input type="checkbox" [(ngModel)]="isSvg">
+</div>
+<svg-js *ngIf="svgJs"></svg-js>
+<fabric-js *ngIf="fabricjs"></fabric-js>
+<pixi *ngIf="pixi"></pixi>

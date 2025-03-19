@@ -1,0 +1,15 @@
+<div style="margin: 20px 0">
+  <button (click)="changeAnimation()" style="margin-right: 20px">{{isAnimation? "stop" : "start"}} animation</button>
+  <button (click)="setZoom(1)" style="margin-right: 20px">zoom 100%</button>
+  <button (click)="setZoom(3)" style="margin-right: 20px">zoom 300%</button>
+  <button (click)="setZoom(6)" style="margin-right: 20px">zoom 600%</button>
+  <button (click)="createScene(1000)">1000</button>
+  <button (click)="createScene(5000)">5000</button>
+  <button (click)="createScene(10000)">10000</button>
+  <button (click)="changeInteraction()" style="margin-left: 20px">{{canvas?.selection? "disable" : "enable"}} operations</button>
+</div>
+<div style="position: relative;">
+  <canvas #redactor class="fabricjs"></canvas>
+  //overlay для перехвата событий мыши, из-за которых встают анимации при движении курсора
+  <div *ngIf="!canvas?.selection" style="position: absolute; background: red; opacity: 0; left: 0; top: 0" [style.width.px]="redactor.clientWidth" [style.height.px]="redactor.clientHeight"></div>
+</div>
