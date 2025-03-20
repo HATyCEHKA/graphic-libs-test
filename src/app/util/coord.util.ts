@@ -29,6 +29,8 @@ export function setIsSvg(value: boolean) {
   isSvg = value;
 }
 
+export const svgFilePath_gradient = 'assets/fan_old.svg';
 export const svgFilePath = 'assets/fan.svg';
 export const stroke='#951f1f';
 export const fill='transparent';
+export const fontSize = 100;

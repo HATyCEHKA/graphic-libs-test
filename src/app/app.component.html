@@ -14,10 +14,13 @@
   <span style="margin-left: 20px">Use svg instead of rect</span>
   <input type="checkbox" [(ngModel)]="isSvg">
 
-  <span style="margin-left: 20px">Pixi Antialias</span>
+  <span style="margin-left: 20px">Svg with gradients</span>
+  <input type="checkbox" (change)="changeSvgPath($event.target)">
+
+  <span style="margin-left: 20px">Pixi Antialias (before create)</span>
   <input type="checkbox" [(ngModel)]="isPixiAntialias">
 </div>
-<svg-js *ngIf="svgJs"></svg-js>
-<fabric-js *ngIf="fabricjs"></fabric-js>
-<pixi *ngIf="pixi" [isAntialias]="isPixiAntialias"></pixi>
-<konva-js *ngIf="konvaJs"></konva-js>
+<svg-js *ngIf="svgJs" [svgFilePath]="svgPath"></svg-js>
+<fabric-js *ngIf="fabricjs" [svgFilePath]="svgPath"></fabric-js>
+<pixi *ngIf="pixi" [isAntialias]="isPixiAntialias" [svgFilePath]="svgPath"></pixi>
+<konva-js *ngIf="konvaJs" [svgFilePath]="svgPath"></konva-js>

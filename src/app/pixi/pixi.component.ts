@@ -6,15 +6,15 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {Application, Assets, Graphics, Sprite, Ticker} from 'pixi.js';
+import {Application, Assets, Graphics, Text, TextStyle, Ticker} from 'pixi.js';
 import {
   canvasHeight,
-  canvasWidth, fill,
+  canvasWidth, fill, fontSize,
   getCoordinates, isSvg,
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, stroke, svgFilePath
+  squaresPerRow, stroke
 } from '../util/coord.util';
 import {ViewContainer} from "pixi.js/lib/scene/view/ViewContainer";
 
@@ -25,15 +25,17 @@ import {ViewContainer} from "pixi.js/lib/scene/view/ViewContainer";
   imports: [CommonModule],
 })
 export class PixiComponent implements OnInit, OnDestroy {
+  @Input()
+  isAntialias:boolean = false;
+  @Input()
+  svgFilePath:string = '';
+
   @ViewChild('redactor', { static: true })
   protected redactor!: ElementRef;
   app: Application | undefined;
   protected isAnimation = false;
   private rects: ViewContainer[] = [];
   private animateTicker: Ticker | null = null;
-
-  @Input()
-  isAntialias:boolean = false;
 
   async ngOnInit() {
     this.app = new Application();
@@ -96,7 +98,7 @@ export class PixiComponent implements OnInit, OnDestroy {
       const promises: Promise<any>[] = [];
 
       for (let i = 0; i < count; i++) {
-        promises.push(Assets.load({src: svgFilePath, data: {parseAsGraphicsContext: true, resolution: 5 }}));
+        promises.push(Assets.load({src: this.svgFilePath, data: {parseAsGraphicsContext: true, resolution: 5 }}));
       }
 
       console.log("2 of 5. Created all loadSVG promises");
@@ -104,41 +106,33 @@ export class PixiComponent implements OnInit, OnDestroy {
       await Promise.all(promises).then((results) => {
         console.log("3 of 5. Finished all loadSVG promises");
         for (let i = 0; i < count; i++) {
-          let loadedSVG = results[i];
-          console.log(loadedSVG);
-          const rect = new Graphics(loadedSVG);
-          //const rect = new Sprite(loadedSVG);
-
-          let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-          let scale = Math.min(squareSize / rect.width, squareSize / rect.height);
-
-          //console.log("Size: ", rect.width, "; Scale: ", scale);
-
-          rect.pivot.set(rect.width / 2, rect.height / 2);
-          if(scale!==1)
-            rect.scale.set(scale);
-          rect.position.set(c.x + rect.width / 2 +  + spacing, c.y + rect.height / 2);
-
-          this.rects.push(rect);
+          const rect = new Graphics(results[i]);
+          this.setPropsAndAdd(rect, i);
         }
-        console.log("4 of 5. Created all objects");
-
       });
     }
     else {
       for (let i = 0; i < count; i++) {
-        const rect = new Graphics().rect(0, 0, squareSize, squareSize).stroke(stroke).fill(fill);
-
-        let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-
-        rect.pivot.set(rect.width / 2, rect.height / 2);
-        rect.position.set(c.x + rect.width / 2 + spacing, c.y + rect.height / 2 + spacing);
-
-        this.rects.push(rect);
+        let rect =  (i % 2 === 0) ?
+          new Graphics().rect(0, 0, squareSize-1, squareSize-1).stroke({width:1, color: stroke/*, pixelLine: true*/}).fill(fill) :
+          new Text({text: 'Text', style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'})});
+        this.setPropsAndAdd(rect, i);
       }
-      console.log("4 of 5. Created all objects");
     }
+    console.log("4 of 5. Created all objects");
     return this.rects;
+  }
+
+  private setPropsAndAdd(rect: ViewContainer, i: number) {
+    let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
+    let scale = Math.min(squareSize / rect.width, squareSize / rect.height);
+    //console.log("Size: ", rect.width, "; Scale: ", scale);
+    rect.pivot.set(rect.width / 2, rect.height / 2);
+    if(scale!==1)
+      rect.scale.set(scale);
+    rect.position.set(c.x + rect.width / 2 + spacing, c.y + rect.height / 2 + spacing);
+
+    this.rects.push(rect);
   }
 
   private  animateObjects(): Ticker {

@@ -5,7 +5,13 @@ import {
   Component,
   inject,
 } from '@angular/core';
-import {setRotationAngle, rotationAngle, isSvg, setIsSvg} from "./util/coord.util";
+import {
+  setRotationAngle,
+  rotationAngle,
+  isSvg,
+  setIsSvg,
+  svgFilePath_gradient, svgFilePath
+} from "./util/coord.util";
 
 @Component({
   selector: 'app-root',
@@ -18,6 +24,8 @@ export class AppComponent implements AfterViewInit {
   protected svgJs: boolean = false;
   protected fabricjs: boolean = false;
   protected pixi: boolean = false;
+  protected isPixiAntialias = false;
+  protected svgPath = svgFilePath;
 
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -74,5 +82,7 @@ export class AppComponent implements AfterViewInit {
     setIsSvg(value);
   }
 
-  protected isPixiAntialias = false;
+  protected changeSvgPath(target:any){
+    this.svgPath = target?.checked? svgFilePath_gradient : svgFilePath;
+  }
 }

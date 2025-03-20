@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
-  ElementRef, inject,
+  ElementRef, inject, Input,
   OnDestroy,
   ViewChild,
 } from '@angular/core';
@@ -10,14 +10,13 @@ import {Svg, Rect, SVG, Runner, Point, Element} from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js'
 import {
   canvasHeight,
-  canvasWidth, fill,
+  canvasWidth, fill, fontSize,
   getCoordinates,
   isSvg,
   rotationAngle,
   spacing,
   squareSize,
   squaresPerRow, stroke,
-  svgFilePath
 } from '../util/coord.util';
 import {firstValueFrom} from "rxjs";
 import {HttpClient} from "@angular/common/http";
@@ -29,6 +28,9 @@ import {HttpClient} from "@angular/common/http";
   templateUrl: './svgjs.component.html',
 })
 export class SvgJsComponent implements AfterViewInit, OnDestroy {
+  @Input()
+  svgFilePath:string = '';
+
   @ViewChild('redactor')
   protected redactor!: ElementRef;
   protected canva: Svg | undefined;
@@ -75,31 +77,33 @@ export class SvgJsComponent implements AfterViewInit, OnDestroy {
 
   private async createObjects(count: number): Promise<Element[]> {
     if(isSvg) {
-      let svgContent = await firstValueFrom<string>(this.httpClient.get(svgFilePath, {responseType: 'text'}));
+      let svgContent = await firstValueFrom<string>(this.httpClient.get(this.svgFilePath, {responseType: 'text'}));
       for (let i = 0; i < count; i++) {
         let rect  = this.canva!.group().svg(svgContent);
-
-        let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-        let box = rect.bbox();
-        let scale = Math.min(squareSize / box.width, squareSize / box.height);
-        //console.log("Size: ", box.width, "; Scale: ", scale);
-        rect.move(c.x + spacing, c.y);
-        rect.scale(scale, scale, c.x + spacing, c.y);
-        this.rects.push(rect);
+        this.setPropsAndAdd(rect, i);
       }
-      console.log("4 of 5. Created all objects");
     }
     else{
       for (let i = 0; i < count; i++) {
-        const rect = this.canva!.rect(squareSize, squareSize).stroke(stroke).fill(fill);
-
-        let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-        rect.move(c.x + spacing, c.y + spacing);
-        this.rects.push(rect);
+        let rect =  (i % 2 === 0) ?
+          this.canva!.rect(squareSize, squareSize).stroke(stroke).fill(fill) :
+          this.canva!.text('Text').font({fontSize: fontSize, family: 'arial'}).fill(stroke);
+        this.setPropsAndAdd(rect, i);
       }
-      console.log("4 of 5. Created all objects");
     }
+    console.log("4 of 5. Created all objects");
     return this.rects;
+  }
+
+  private setPropsAndAdd(rect: Element, i: number) {
+    let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
+    let box = rect.bbox();
+    let scale = Math.min(squareSize / box.width, squareSize / box.height);
+    //console.log("Size: ", box.width, "; Scale: ", scale);
+    rect.move(c.x + spacing, c.y + spacing);
+    if(scale!==1)
+      rect.scale(scale, scale, c.x + spacing, c.y + spacing);
+    this.rects.push(rect);
   }
 
   private animateObjects(rects: Element[]): void {

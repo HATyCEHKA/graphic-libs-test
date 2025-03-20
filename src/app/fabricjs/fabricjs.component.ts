@@ -1,20 +1,29 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  ElementRef, inject,
+  ElementRef, inject, Input,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {BaseFabricObject, Canvas, Point, Rect, util, FabricObject, loadSVGFromString} from 'fabric';
+import {
+  BaseFabricObject,
+  Canvas,
+  Point,
+  Rect,
+  util,
+  FabricObject,
+  loadSVGFromString,
+  FabricText,config
+} from 'fabric';
 import {
   canvasHeight,
-  canvasWidth, fill,
+  canvasWidth, fill, fontSize,
   getCoordinates, isSvg,
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, stroke, svgFilePath
+  squaresPerRow, stroke
 } from '../util/coord.util';
 import {HttpClient} from "@angular/common/http";
 import {firstValueFrom} from "rxjs";
@@ -26,6 +35,9 @@ import {firstValueFrom} from "rxjs";
   templateUrl: './fabricjs.component.html',
 })
 export class FabricjsComponent implements OnInit, OnDestroy {
+  @Input()
+  svgFilePath:string = '';
+
   @ViewChild('redactor', { static: true })
   protected redactor!: ElementRef;
   protected canvas: Canvas | undefined;
@@ -37,6 +49,10 @@ export class FabricjsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     BaseFabricObject.ownDefaults.originX = 'center';
     BaseFabricObject.ownDefaults.originY = 'center';
+    // config.perfLimitSizeTotal = 1096 * 1024;
+    // config.maxCacheSideLimit = 1000;
+    // config.minCacheSideLimit = 100;
+
     this.canvas = new Canvas(this.redactor.nativeElement, {
       width: canvasWidth,
       height: canvasHeight,
@@ -103,7 +119,7 @@ export class FabricjsComponent implements OnInit, OnDestroy {
   private async createObjects(count: number): Promise<FabricObject[]> {
     if(isSvg) {
       const promises: Promise<any>[] = [];
-      let svgContent = await firstValueFrom<string>(this.httpClient.get(svgFilePath, {responseType: 'text'}));
+      let svgContent = await firstValueFrom<string>(this.httpClient.get(this.svgFilePath, {responseType: 'text'}));
 
       for (let i = 0; i < count; i++) {
         promises.push(loadSVGFromString(svgContent));
@@ -114,39 +130,34 @@ export class FabricjsComponent implements OnInit, OnDestroy {
         console.log("3 of 5. Finished all loadSVG promises");
         let sel = this.canvas?.selection!;
         for (let i = 0; i < count; i++) {
-          let loadedSVG = results[i];
-          let rect = util.groupSVGElements(loadedSVG.objects, loadedSVG.options);
-
-          let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-          let scale = Math.min(squareSize / rect.width, squareSize / rect.height);
-
-          //console.log("Size: ", rect.width, "; Scale: ", scale);
-
-          rect.setXY(new Point(c.x + squareSize / 2 + spacing, c.y + squareSize / 2));
-          rect.scale(scale);
-
-          rect.selectable = sel;
-          this.canvas?.add(rect);
-          this.rects.push(rect);
+          let rect = util.groupSVGElements(results[i].objects, results[i].options);
+          this.setPropsAndAdd(rect, i, sel);
         }
-        console.log("4 of 5. Created all objects");
       });
     }
     else{
       let sel = this.canvas?.selection!;
       for (let i = 0; i < count; i++) {
-        let rect = new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: fill});
-
-        let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-        rect.setXY(new Point(c.x + squareSize / 2 + spacing, c.y + squareSize / 2 + spacing));
-
-        rect.selectable = sel;
-        this.canvas?.add(rect);
-        this.rects.push(rect);
+        let rect =  (i % 2 === 0) ?
+          new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: fill}) :
+          new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
+        this.setPropsAndAdd(rect, i, sel);
       }
-      console.log("4 of 5. Created all objects");
     }
+    console.log("4 of 5. Created all objects");
     return this.rects;
+  }
+
+  private setPropsAndAdd(rect: FabricObject, i: number, selectable:boolean) {
+    let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
+    let scale = Math.min(squareSize / rect.width, squareSize / rect.height);
+    //console.log("Size: ", rect.width, "; Scale: ", scale);
+    rect.setXY(new Point(c.x + squareSize / 2 + spacing, c.y + squareSize / 2 + spacing));
+    if(scale!==1)
+      rect.scale(scale);
+    rect.selectable = selectable;
+    this.canvas?.add(rect);
+    this.rects.push(rect);
   }
 
   private animateObjects(rects: FabricObject[]): void {
