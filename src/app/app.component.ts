@@ -56,7 +56,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   private closeAll(): void {
-    this.fabricjs = this.pixi = this.svgJs = false;
+    this.konvaJs = this.fabricjs = this.pixi = this.svgJs = false;
   }
 
   ngAfterViewInit(): void {
