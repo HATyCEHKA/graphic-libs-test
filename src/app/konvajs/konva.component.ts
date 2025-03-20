@@ -120,6 +120,7 @@ export class KonvaComponent implements OnInit, OnDestroy {
 
   private async createObjects(count: number): Promise<Shape[]> {
     if (isSvg) {
+      if(count>10000) return [];
       return new Promise<Shape[]>((resolve) => {
         let createdCount = 0;
         for (let i = 0; i < count; i++) {
@@ -129,7 +130,7 @@ export class KonvaComponent implements OnInit, OnDestroy {
             this.setPropsAndAdd(rect, i, this.isInteractive);
             createdCount++;
 
-            if (createdCount === count)
+            if (createdCount >= count)
             {
               console.log("4 of 5. Created all objects");
               this.layer?.draw();
