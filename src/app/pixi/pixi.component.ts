@@ -108,7 +108,6 @@ export class PixiComponent implements OnInit, OnDestroy {
       await Promise.all(promises).then((results) => {
         console.log("3 of 5. Finished all loadSVG promises");
         for (let i = 0; i < count; i++) {
-          console.log(results[i]);
           const rect = new Graphics(results[i]);
           this.setPropsAndAdd(rect, i);
         }
