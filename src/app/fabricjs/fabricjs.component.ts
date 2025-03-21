@@ -14,7 +14,7 @@ import {
   util,
   FabricObject,
   loadSVGFromString,
-  FabricText,config
+  FabricText, config, Group
 } from 'fabric';
 import {
   canvasHeight,
@@ -142,6 +142,13 @@ export class FabricjsComponent implements OnInit, OnDestroy {
           new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: fill}) :
           new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
         this.setPropsAndAdd(rect, i, sel);
+
+        // let rect = new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: fill}) ;
+        // let text = new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
+        // let scale = Math.min(squareSize / text.width/2, squareSize / text.height/2);
+        // text.scale(scale);
+        // let group = new Group([rect, text]);
+        // this.setPropsAndAdd(group, i, sel);
       }
     }
     console.log("4 of 5. Created all objects");

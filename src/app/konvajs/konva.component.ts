@@ -15,7 +15,6 @@ import {
 } from '../util/coord.util';
 import Konva from "konva";
 import Layer = Konva.Layer;
-import {Shape} from "konva/lib/Shape";
 import Stage = Konva.Stage;
 
 @Component({
@@ -30,12 +29,12 @@ export class KonvaComponent implements OnInit, OnDestroy {
 
   protected isAnimation = false;
   protected isInteractive = false;
-  private rects: Shape[] = [];
+  private rects: Array<Konva.Shape | Konva.Group> = [];
   private animationFrameId: number = 0;
 
   private layer?: Layer;
   private stage?: Stage;
-  private selectionRectangle?: Shape;
+  private selectionRectangle?: Konva.Shape;
   private tr?: Konva.Transformer;
 
   async ngOnInit() {
@@ -75,7 +74,7 @@ export class KonvaComponent implements OnInit, OnDestroy {
     }
 
     let rects = await this.createObjects(count);
-    this.layer!.batchDraw();
+    this.layer!.draw();
     console.log("5 of 5. Finish creating!", (Date.now() - t) / 1000 + "sec");
 
     if (this.isAnimation) {
@@ -118,16 +117,16 @@ export class KonvaComponent implements OnInit, OnDestroy {
     this.layer!.batchDraw();
   }
 
-  private async createObjects(count: number): Promise<Shape[]> {
+  private async createObjects(count: number): Promise<Array<Konva.Shape | Konva.Group>> {
     if (isSvg) {
       if(count>10000) return [];
-      return new Promise<Shape[]>((resolve) => {
+      return new Promise<Array<Konva.Shape | Konva.Group>>((resolve) => {
         let createdCount = 0;
         for (let i = 0; i < count; i++) {
           Konva.Image.fromURL(this.svgFilePath, (rect) => {
             rect.perfectDrawEnabled(false);
             rect.cache({pixelRatio: this.stage!.scaleX()});
-            this.setPropsAndAdd(rect, i, this.isInteractive);
+            this.setPropsAndAdd(rect, i);
             createdCount++;
 
             if (createdCount >= count)
@@ -150,29 +149,64 @@ export class KonvaComponent implements OnInit, OnDestroy {
             strokeWidth: 1
           }) :
           new Konva.Text({text: 'Text', fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
-        this.setPropsAndAdd(rect, i, this.isInteractive);
+        this.setPropsAndAdd(rect, i);
+
+        // let rect = new Konva.Rect({
+        //   width: squareSize,
+        //   height: squareSize,
+        //   stroke: stroke,
+        //   fill: fill,
+        //   strokeWidth: 1
+        // })  ;
+        // let text =  new Konva.Text({text: 'Text', fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
+        // let scale = Math.min(squareSize / text.width()/2, squareSize / text.height()/2);
+        // text.offsetX(text.width() / 2);
+        // text.offsetY(text.height()/ 2);
+        // text.scale({x: scale, y: scale});
+        // text.setPosition({x: squareSize / 2 , y: squareSize / 2});
+        //
+        // let group = new Konva.Group();
+        // group.add(rect);
+        // group.add(text);
+        // this.setPropsAndAdd(group, i);
       }
     }
     console.log("4 of 5. Created all objects");
     return this.rects;
   }
 
-  private setPropsAndAdd(rect: Shape, i: number, selectable:boolean) {
-    rect.offsetX(rect.width() / 2);
-    rect.offsetY(rect.height() / 2);
+  private setPropsAndAdd(rect: Konva.Shape | Konva.Group, i: number) {
+    let bbox = rect.getClientRect();
+    rect.offsetX(bbox.width / 2);
+    rect.offsetY(bbox.height/ 2);
 
     let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-    let scale = Math.min(squareSize / rect.width(), squareSize / rect.height());
+    let scale = Math.min(squareSize / (bbox.width -1), squareSize / (bbox.height -1));
     //console.log("Size: ", rect.width(), "; Scale: ", scale);
     rect.setPosition({x: c.x + squareSize / 2 + spacing, y: c.y + squareSize / 2 + spacing});
-    if(scale!==1)
+    if(scale && scale!==1 && Number.isFinite(scale))
       rect.scale({x: scale, y: scale});
     rect.draggable(this.isInteractive);
     this.layer?.add(rect);
     this.rects.push(rect);
   }
 
-  private animateObjects(rects: Shape[]): void {
+  private setPropsAndAdd_g(rect: Konva.Group, i: number) {
+    rect.offsetX(rect.width() / 2);
+    rect.offsetY(rect.height() / 2);
+
+    let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
+    let scale = Math.min(squareSize / rect.width(), squareSize / rect.height());
+    console.log("Size: ", rect.width(), "; Scale: ", scale);
+    rect.setPosition({x: c.x + squareSize / 2 + spacing, y: c.y + squareSize / 2 + spacing});
+    if(scale && scale!==1 && Number.isFinite(scale))
+      rect.scale({x: scale, y: scale});
+    rect.draggable(this.isInteractive);
+    this.layer?.add(rect);
+    this.rects.push(rect);
+  }
+
+  private animateObjects(rects: Array<Konva.Shape | Konva.Group>): void {
     const changeAngle = () => {
       rects.forEach((rect) => {
         rect.rotate(rotationAngle);
