@@ -7,6 +7,8 @@
   <button (click)="pixi = false">remove pixi</button>
   <button (click)="createSvgJs()" style="margin-left: 20px">create SVG.js</button>
   <button (click)="svgJs = false">remove SVG.js</button>
+  <button (click)="createTwoJs()" style="margin-left: 20px">create Two.js</button>
+  <button (click)="twoJs = false">remove Two.js</button>
 
   <span style="margin-left: 20px">Rotation speed: </span>
   <input type="number" [(ngModel)]="rotationAngle" style="width: 40px">
@@ -24,3 +26,4 @@
 <fabric-js *ngIf="fabricjs" [svgFilePath]="svgPath"></fabric-js>
 <pixi *ngIf="pixi" [isAntialias]="isPixiAntialias" [svgFilePath]="svgPath"></pixi>
 <konva-js *ngIf="konvaJs" [svgFilePath]="svgPath"></konva-js>
+<two-js *ngIf="twoJs" [svgFilePath]="svgPath"></two-js>

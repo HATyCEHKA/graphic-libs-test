@@ -24,6 +24,7 @@ export class AppComponent implements AfterViewInit {
   protected svgJs: boolean = false;
   protected fabricjs: boolean = false;
   protected pixi: boolean = false;
+  protected twoJs: boolean = false;
   protected isPixiAntialias = false;
   protected svgPath = svgFilePath;
 
@@ -39,7 +40,6 @@ export class AppComponent implements AfterViewInit {
   createSvgJs() {
     this.closeAll();
     this.svgJs = true;
-
     this.cdr.detectChanges();
   }
 
@@ -52,6 +52,12 @@ export class AppComponent implements AfterViewInit {
   createPixi() {
     this.closeAll();
     this.pixi = true;
+    this.cdr.detectChanges();
+  }
+
+  createTwoJs() {
+    this.closeAll();
+    this.twoJs = true;
     this.cdr.detectChanges();
   }
 
