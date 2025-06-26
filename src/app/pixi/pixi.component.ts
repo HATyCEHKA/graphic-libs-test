@@ -6,15 +6,15 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {Application, Assets, Graphics, Text, TextStyle, Ticker} from 'pixi.js';
+import {Application, Assets, Container, Graphics, Text, TextStyle, Ticker} from 'pixi.js';
 import {
   canvasHeight,
-  canvasWidth, fill, fontSize,
-  getCoordinates, isSvg,
+  canvasWidth, fill, fontSize, getColor,
+  getCoordinates, isCreateGroup, isSvg,
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, stroke
+  squaresPerRow, stroke, useRandomColors
 } from '../util/coord.util';
 import {ViewContainer} from "pixi.js/lib/scene/view/ViewContainer";
 
@@ -34,7 +34,7 @@ export class PixiComponent implements OnInit, OnDestroy {
   protected redactor!: ElementRef;
   app: Application | undefined;
   protected isAnimation = false;
-  private rects: ViewContainer[] = [];
+  private rects: Container[] = [];
   private animateTicker: Ticker | null = null;
 
   async ngOnInit() {
@@ -95,7 +95,7 @@ export class PixiComponent implements OnInit, OnDestroy {
     this.app!.render();
   }
 
-  private async createObjects(count: number = 1000): Promise<ViewContainer[]> {
+  private async createObjects(count: number = 1000): Promise<Container[]> {
     if(isSvg) {
       const promises: Promise<any>[] = [];
 
@@ -115,24 +115,47 @@ export class PixiComponent implements OnInit, OnDestroy {
     }
     else {
       for (let i = 0; i < count; i++) {
-        let rect =  (i % 2 === 0) ?
-          new Graphics().rect(0, 0, squareSize-1, squareSize-1).stroke({width:1, color: stroke/*, pixelLine: true*/}).fill(fill) :
-          new Text({text: 'Text', style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'})});
-        this.setPropsAndAdd(rect, i);
+        if(!isCreateGroup) {
+          let rect =  (i % 2 === 0) ?
+            new Graphics().rect(0, 0, squareSize-1, squareSize-1).stroke({width:1, color: stroke/*, pixelLine: true*/}).fill(useRandomColors? getColor(i) : fill) :
+            new Text({text: 'Text', style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'})});
+          this.setPropsAndAdd(rect, i);
+        }
+        else {
+          let rect = new Graphics().rect(0, 0, squareSize, squareSize).stroke({
+            width: 1,
+            color: stroke/*, pixelLine: true*/
+          }).fill(useRandomColors? getColor(i) : fill);
+          let text = new Text({
+            text: 'Text',
+            style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'})
+          });
+          let scale = Math.min(squareSize / text.width / 1.5, squareSize / text.height / 1.5);
+
+          text.scale.set(scale);
+          text.position.set((squareSize - text.width) / 2 , (squareSize - text.height - 2) / 2);
+
+          let group = new Container();
+          group.addChild(rect);
+          group.addChild(text);
+          this.setPropsAndAdd(group, i);
+        }
       }
     }
-    console.log("4 of 5. Created all objects");
+    console.log("4 of 5. Created all objects", count);
+
     return this.rects;
   }
 
-  private setPropsAndAdd(rect: ViewContainer, i: number) {
+  private setPropsAndAdd(rect: Container, i: number) {
     let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-    let scale = Math.min(squareSize / rect.width, squareSize / rect.height);
+    let sizeDiff = isCreateGroup ? 1: 0;
+    let scale = Math.min(squareSize / (rect.width - sizeDiff), squareSize / (rect.height - sizeDiff));
     //console.log("Size: ", rect.width, "; Scale: ", scale);
     rect.pivot.set(rect.width / 2, rect.height / 2);
-    if(scale!==1)
+    if(Math.abs(scale - 1) > 0.2)
       rect.scale.set(scale);
-    rect.position.set(c.x + rect.width / 2 + spacing, c.y + rect.height / 2 + spacing);
+    rect.position.set(c.x + (squareSize + 1 - sizeDiff) / 2 + spacing, c.y + (squareSize + 1 - sizeDiff) / 2 + spacing);
 
     this.rects.push(rect);
   }

@@ -13,7 +13,7 @@ import {
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, stroke
+  squaresPerRow, stroke, isCreateGroup, getColor, useRandomColors
 } from '../util/coord.util';
 
 import Two from 'two.js';
@@ -89,7 +89,7 @@ export class TwojsComponent implements OnInit, OnDestroy {
   }
 
   protected setZoom(zoom: number) {
-    this.zui!.zoomSet(zoom, 0, 0);
+    this.zui!.zoomSet(zoom, spacing, spacing);
     this.two!.update();
   }
 
@@ -100,7 +100,7 @@ export class TwojsComponent implements OnInit, OnDestroy {
         let createdCount = 0;
         for (let i = 0; i < count; i++) {
           this.two!.load(this.svgFilePath, (svg: Group) => {
-            svg.center(); // I center the object's shapes
+            svg.center();
             this.setPropsAndAdd(svg, i);
             createdCount++;
 
@@ -114,35 +114,39 @@ export class TwojsComponent implements OnInit, OnDestroy {
     }
     else{
       for (let i = 0; i < count; i++) {
-        let shape: Shape;
-        if(i % 2 === 0){
-          let rect =  new Two.Rectangle(0, 0, squareSize, squareSize);
+        if (!isCreateGroup) {
+          let shape: Shape;
+          if(i % 2 === 0){
+            let rect =  new Two.Rectangle(0, 0, squareSize, squareSize);
+            rect.stroke = stroke;
+            rect.fill = useRandomColors? getColor(i) : fill;
+            rect.linewidth = 1;
+            shape = rect;
+          }
+          else{
+            let text = new Two.Text('Text');
+            text.family = 'Arial';
+            text.size = fontSize;
+            text.fill = stroke;
+            shape = text;
+          }
+          this.setPropsAndAdd(shape, i);
+        } else {
+          let group = new Two.Group();
+          let rect = new Two.Rectangle(0, 0, squareSize, squareSize);
           rect.stroke = stroke;
-          rect.fill = fill;
-          shape = rect;
-        }
-        else{
+          rect.fill = useRandomColors? getColor(i) : fill;
+          rect.linewidth = 1;
           let text = new Two.Text('Text');
           text.family = 'Arial';
           text.size = fontSize;
           text.fill = stroke;
-          shape = text;
+          let box = text.getBoundingClientRect();
+          let scale = Math.min(squareSize / (box.width - 1) / 1.5, squareSize / (box.height - 1) / 1.5);
+          text.scale = scale;
+          group.add(rect, text);
+          this.setPropsAndAdd(group, i);
         }
-        this.setPropsAndAdd(shape, i);
-
-        // let group = new Two.Group();
-        // let rect = new Two.Rectangle(0, 0, squareSize, squareSize);
-        // rect.stroke = stroke;
-        // rect.fill = fill;
-        // let text = new Two.Text('Text');
-        // text.family = 'Arial';
-        // text.size = fontSize;
-        // text.fill = stroke;
-        // let box = (text as any).getBoundingClientRect();
-        // let scale = Math.min(squareSize / box.width, squareSize / box.height);
-        // text.scale = scale;
-        // group.add(rect, text);
-        // this.setPropsAndAdd(group, i);
       }
       console.log("4 of 5. Created all objects");
     }
@@ -152,10 +156,11 @@ export class TwojsComponent implements OnInit, OnDestroy {
   private setPropsAndAdd(rect: Shape, i: number) {
     let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
     let box = (rect as any).getBoundingClientRect();
-    let scale = Math.min(squareSize / box.width, squareSize / box.height);
+    let sizeDiff = isCreateGroup ? 1: 0;
+    let scale = Math.min(squareSize / (box.width - sizeDiff), squareSize / (box.height - sizeDiff));
     //console.log("Size: ", box, "; Scale: ", scale);
-    rect.position.set(c.x + squareSize / 2 + spacing, c.y + squareSize / 2 + spacing);
-    if(Math.abs(scale - 1) > 0.3)
+    rect.position.set(c.x + squareSize / 2 + spacing - 0.5, c.y + squareSize / 2 + spacing - 0.5);
+    if(Math.abs(scale - 1) > 0.2)
       rect.scale = scale;
 
     this.two!.add(rect);

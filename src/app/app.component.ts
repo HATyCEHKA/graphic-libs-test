@@ -1,16 +1,13 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  inject,
+  ChangeDetectionStrategy, ChangeDetectorRef,
+  Component, inject,
 } from '@angular/core';
 import {
   setRotationAngle,
   rotationAngle,
   isSvg,
   setIsSvg,
-  svgFilePath_gradient, svgFilePath
+  svgFilePath_gradient, svgFilePath, useRandomColors, setUseRandomColors
 } from "./util/coord.util";
 
 @Component({
@@ -19,13 +16,13 @@ import {
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent {
   protected konvaJs: boolean = false;
   protected svgJs: boolean = false;
   protected fabricjs: boolean = false;
   protected pixi: boolean = false;
   protected twoJs: boolean = false;
-  protected isPixiAntialias = false;
+  protected isPixiAntialias = true;
   protected svgPath = svgFilePath;
 
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
@@ -65,13 +62,6 @@ export class AppComponent implements AfterViewInit {
     this.konvaJs = this.fabricjs = this.pixi = this.svgJs = false;
   }
 
-  ngAfterViewInit(): void {
-    // const rect = canva.rect(300, 300).attr({ fill: '#f06' });
-    // setInterval(() => {
-    //   rect.animate().rotate(1).active();
-    // }, 100);
-  }
-
   protected get rotationAngle() {
     return rotationAngle;
   }
@@ -86,6 +76,14 @@ export class AppComponent implements AfterViewInit {
 
   protected set isSvg(value) {
     setIsSvg(value);
+  }
+
+  protected get useRandomColors() {
+    return useRandomColors;
+  }
+
+  protected set useRandomColors(value) {
+    setUseRandomColors(value);
   }
 
   protected changeSvgPath(target:any){

@@ -18,12 +18,12 @@ import {
 } from 'fabric';
 import {
   canvasHeight,
-  canvasWidth, fill, fontSize,
-  getCoordinates, isSvg,
+  canvasWidth, fill, fontSize, getColor,
+  getCoordinates, isCreateGroup, isSvg,
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, stroke
+  squaresPerRow, stroke, useRandomColors
 } from '../util/coord.util';
 import {HttpClient} from "@angular/common/http";
 import {firstValueFrom} from "rxjs";
@@ -138,17 +138,21 @@ export class FabricjsComponent implements OnInit, OnDestroy {
     else{
       let sel = this.canvas?.selection!;
       for (let i = 0; i < count; i++) {
-        let rect =  (i % 2 === 0) ?
-          new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: fill}) :
-          new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
-        this.setPropsAndAdd(rect, i, sel);
-
-        // let rect = new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: fill}) ;
-        // let text = new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
-        // let scale = Math.min(squareSize / text.width/2, squareSize / text.height/2);
-        // text.scale(scale);
-        // let group = new Group([rect, text]);
-        // this.setPropsAndAdd(group, i, sel);
+        if(!isCreateGroup) {
+          let rect =  (i % 2 === 0) ?
+            new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: useRandomColors? getColor(i) : fill, strokeWidth: 1}) :
+            new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
+          this.setPropsAndAdd(rect, i, sel);
+        }
+        else {
+          let rect = new Rect({width: squareSize, height: squareSize, stroke: stroke, fill: useRandomColors? getColor(i) : fill, strokeWidth: 1});
+          let text = new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
+          let scale = Math.min(squareSize / text.width / 1.5, squareSize / text.height / 1.5);
+          text.scale(scale);
+          text.top = -0.5;
+          let group = new Group([rect, text]);
+          this.setPropsAndAdd(group, i, sel);
+        }
       }
     }
     console.log("4 of 5. Created all objects");
@@ -157,11 +161,14 @@ export class FabricjsComponent implements OnInit, OnDestroy {
 
   private setPropsAndAdd(rect: FabricObject, i: number, selectable:boolean) {
     let c = getCoordinates(i, squaresPerRow, squareSize, spacing);
-    let scale = Math.min(squareSize / rect.width, squareSize / rect.height);
+    let sizeDiff = isCreateGroup ? 1: 0;
+    let scale = Math.min(squareSize / (rect.width - sizeDiff), squareSize / (rect.height - sizeDiff));
     //console.log("Size: ", rect.width, "; Scale: ", scale);
-    rect.setXY(new Point(c.x + squareSize / 2 + spacing, c.y + squareSize / 2 + spacing));
-    if(scale!==1)
+    if(Math.abs(scale - 1) > 0.2)
       rect.scale(scale);
+
+    rect.setXY(new Point(c.x + squareSize / 2 + spacing - 0.5, c.y + squareSize / 2 + spacing - 0.5));
+
     rect.selectable = selectable;
     this.canvas?.add(rect);
     this.rects.push(rect);

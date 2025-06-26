@@ -1,17 +1,20 @@
 <div>
   <button (click)="createKonvaJs()">create Konva.js</button>
   <button (click)="konvaJs = false">remove Konva.js</button>
+  <button (click)="createTwoJs()" style="margin-left: 20px">create Two.js</button>
+  <button (click)="twoJs = false">remove Two.js</button>
   <button (click)="createFabricJs()" style="margin-left: 20px">create fabricjs</button>
   <button (click)="fabricjs = false">remove fabricjs</button>
   <button (click)="createPixi()" style="margin-left: 20px">create pixi</button>
   <button (click)="pixi = false">remove pixi</button>
   <button (click)="createSvgJs()" style="margin-left: 20px">create SVG.js</button>
   <button (click)="svgJs = false">remove SVG.js</button>
-  <button (click)="createTwoJs()" style="margin-left: 20px">create Two.js</button>
-  <button (click)="twoJs = false">remove Two.js</button>
 
   <span style="margin-left: 20px">Rotation speed: </span>
   <input type="number" [(ngModel)]="rotationAngle" style="width: 40px">
+
+  <span style="margin-left: 20px">Random colors</span>
+  <input type="checkbox" [(ngModel)]="useRandomColors">
 
   <span style="margin-left: 20px">Use svg instead of rect</span>
   <input type="checkbox" [(ngModel)]="isSvg">

@@ -10,13 +10,13 @@ import {Svg, Rect, SVG, Runner, Point, Element} from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js'
 import {
   canvasHeight,
-  canvasWidth, fill, fontSize,
+  canvasWidth, fill, fontSize, getColor,
   getCoordinates,
   isSvg,
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, stroke,
+  squaresPerRow, stroke, useRandomColors,
 } from '../util/coord.util';
 import {firstValueFrom} from "rxjs";
 import {HttpClient} from "@angular/common/http";
@@ -86,7 +86,7 @@ export class SvgJsComponent implements AfterViewInit, OnDestroy {
     else{
       for (let i = 0; i < count; i++) {
         let rect =  (i % 2 === 0) ?
-          this.canva!.rect(squareSize, squareSize).stroke(stroke).fill(fill) :
+          this.canva!.rect(squareSize, squareSize).stroke(stroke).fill(useRandomColors? getColor(i) : fill) :
           this.canva!.text('Text').font({fontSize: fontSize, family: 'arial'}).fill(stroke);
         this.setPropsAndAdd(rect, i);
       }
