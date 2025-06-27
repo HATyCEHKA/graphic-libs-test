@@ -9,14 +9,13 @@ import {
 import {Application, Assets, Container, Graphics, Text, TextStyle, Ticker} from 'pixi.js';
 import {
   canvasHeight,
-  canvasWidth, fill, fontSize, getColor,
+  canvasWidth, correctPixels, fill, fontSize, getColor,
   getCoordinates, isCreateGroup, isSvg,
   rotationAngle,
   spacing,
   squareSize,
   squaresPerRow, stroke, useRandomColors
 } from '../util/coord.util';
-import {ViewContainer} from "pixi.js/lib/scene/view/ViewContainer";
 
 @Component({
   selector: 'pixi',
@@ -142,7 +141,7 @@ export class PixiComponent implements OnInit, OnDestroy {
         }
       }
     }
-    console.log("4 of 5. Created all objects", count);
+    console.log("4 of 5. Created all objects");
 
     return this.rects;
   }
@@ -155,7 +154,9 @@ export class PixiComponent implements OnInit, OnDestroy {
     rect.pivot.set(rect.width / 2, rect.height / 2);
     if(Math.abs(scale - 1) > 0.2)
       rect.scale.set(scale);
-    rect.position.set(c.x + (squareSize + 1 - sizeDiff) / 2 + spacing, c.y + (squareSize + 1 - sizeDiff) / 2 + spacing);
+
+    let posDiff = correctPixels? 0.5 : 0;
+    rect.position.set(c.x + (squareSize - sizeDiff) / 2 + spacing + posDiff, c.y + (squareSize - sizeDiff) / 2 + spacing + posDiff);
 
     this.rects.push(rect);
   }

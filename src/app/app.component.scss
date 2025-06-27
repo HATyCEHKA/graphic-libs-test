@@ -2,3 +2,10 @@
     display: flex;
     flex-direction: column;
 }
+
+.label{
+  display: inline-block;
+  max-width: 68px;
+  line-height: 10pt;
+  vertical-align: text-top
+}

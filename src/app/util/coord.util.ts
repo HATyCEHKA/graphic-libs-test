@@ -18,7 +18,7 @@ export function getCoordinates(
 }
 
 export const canvasWidth = 2500;
-export const canvasHeight = 1140;
+export const canvasHeight = 1170;
 
 export const squareSize = 50;
 export const spacing = 5;
@@ -45,12 +45,28 @@ export function setUseRandomColors(value: boolean) {
   useRandomColors = value;
 }
 
-export const isCreateGroup = true;
+let correctPixels = true;
+export {correctPixels,};
+export function setCorrectPixels(value: boolean) {
+  correctPixels = value;
+}
+
+let fontSize = 12;
+export {fontSize};
+export function setFontSize(value: number) {
+  fontSize = value;
+}
+
+let isCreateGroup = true;
+export {isCreateGroup,};
+export function setIsCreateGroup(value: boolean) {
+  isCreateGroup = value;
+}
+
 export const svgFilePath_gradient = 'assets/fan_old.svg';
 export const svgFilePath = 'assets/fan.svg';
 export const stroke='#951f1f';
 export const fill='transparent';
-export const fontSize = 20;
 
 export function getColor(index: number){
   let max = Math.round(500/squaresPerRow) * squaresPerRow;

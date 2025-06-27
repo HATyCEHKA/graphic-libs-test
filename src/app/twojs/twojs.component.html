@@ -1,5 +1,7 @@
-<div style="margin: 20px 0">
-  <span style="margin: 0 50px; font-weight: bold">Two.js</span>
+<div style="margin: 10px 0">
+  <span style="margin: 0 0 0 50px; font-weight: bold">Two.js</span>
+  <span *ngIf="!useWebGl" style="margin: 0 50px 0 0; font-weight: bold"> - Canvas</span>
+  <span *ngIf="useWebGl" style="margin: 0 50px 0 0; font-weight: bold"> - WebGl</span>
   <button (click)="changeAnimation()" style="margin-right: 20px">{{isAnimation? "stop" : "start"}} animation</button>
   <button (click)="setZoom(1)" style="margin-right: 20px">zoom 100%</button>
   <button (click)="setZoom(3)" style="margin-right: 20px">zoom 300%</button>

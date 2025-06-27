@@ -14,11 +14,11 @@ import {
   util,
   FabricObject,
   loadSVGFromString,
-  FabricText, config, Group
+  FabricText, Group
 } from 'fabric';
 import {
   canvasHeight,
-  canvasWidth, fill, fontSize, getColor,
+  canvasWidth, correctPixels, fill, fontSize, getColor,
   getCoordinates, isCreateGroup, isSvg,
   rotationAngle,
   spacing,
@@ -77,7 +77,7 @@ export class FabricjsComponent implements OnInit, OnDestroy {
       this.rects=[];
     }
 
-    let rects = await this.createObjects(count);
+    await this.createObjects(count);
     this.canvas!.requestRenderAll();
     console.log("5 of 5. Finish creating!", (Date.now()-t)/ 1000 + "sec");
 
@@ -149,7 +149,7 @@ export class FabricjsComponent implements OnInit, OnDestroy {
           let text = new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
           let scale = Math.min(squareSize / text.width / 1.5, squareSize / text.height / 1.5);
           text.scale(scale);
-          text.top = -0.5;
+          text.top = -correctPixels? 0.5 : 0;
           let group = new Group([rect, text]);
           this.setPropsAndAdd(group, i, sel);
         }
@@ -167,7 +167,8 @@ export class FabricjsComponent implements OnInit, OnDestroy {
     if(Math.abs(scale - 1) > 0.2)
       rect.scale(scale);
 
-    rect.setXY(new Point(c.x + squareSize / 2 + spacing - 0.5, c.y + squareSize / 2 + spacing - 0.5));
+    let posDiff = correctPixels? 0.5 : 0;
+    rect.setXY(new Point(c.x + squareSize / 2 + spacing - posDiff, c.y + squareSize / 2 + spacing - posDiff));
 
     rect.selectable = selectable;
     this.canvas?.add(rect);

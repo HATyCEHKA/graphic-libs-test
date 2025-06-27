@@ -1,32 +1,40 @@
 <div>
   <button (click)="createKonvaJs()">create Konva.js</button>
-  <button (click)="konvaJs = false">remove Konva.js</button>
-  <button (click)="createTwoJs()" style="margin-left: 20px">create Two.js</button>
-  <button (click)="twoJs = false">remove Two.js</button>
+  <button (click)="createTwoJs_canvas()" style="margin-left: 20px">create Two.js Canvas</button>
+  <button (click)="createTwoJs_webGl()" style="margin-left: 20px">create Two.js WebGl</button>
   <button (click)="createFabricJs()" style="margin-left: 20px">create fabricjs</button>
-  <button (click)="fabricjs = false">remove fabricjs</button>
+  <button (click)="createPixi_antialias()" style="margin-left: 20px">create pixi Antialias</button>
   <button (click)="createPixi()" style="margin-left: 20px">create pixi</button>
-  <button (click)="pixi = false">remove pixi</button>
   <button (click)="createSvgJs()" style="margin-left: 20px">create SVG.js</button>
-  <button (click)="svgJs = false">remove SVG.js</button>
 
-  <span style="margin-left: 20px">Rotation speed: </span>
+  <span style="margin-left: 15px">Rotation speed: </span>
   <input type="number" [(ngModel)]="rotationAngle" style="width: 40px">
 
-  <span style="margin-left: 20px">Random colors</span>
-  <input type="checkbox" [(ngModel)]="useRandomColors">
+  <input style="margin-left: 15px" type="checkbox" [(ngModel)]="isCreateGroup">
+  <span class="label">Create groups</span>
 
-  <span style="margin-left: 20px">Use svg instead of rect</span>
-  <input type="checkbox" [(ngModel)]="isSvg">
+  <input style="margin-left: 15px" type="checkbox" [(ngModel)]="useRandomColors">
+  <span class="label">Random colors</span>
 
-  <span style="margin-left: 20px">Svg with gradients</span>
-  <input type="checkbox" (change)="changeSvgPath($event.target)">
 
-  <span style="margin-left: 20px">Pixi Antialias (before create)</span>
-  <input type="checkbox" [(ngModel)]="isPixiAntialias">
+  <input style="margin-left: 15px" type="checkbox" [(ngModel)]="correctPixels">
+  <span class="label">Correct half pixels</span>
+
+
+  <input style="margin-left: 15px" type="checkbox" [(ngModel)]="isSvg">
+  <span class="label">Use svg</span>
+
+
+  <input style="margin-left: 15px" type="checkbox" (change)="changeSvgPath($event.target)">
+  <span class="label">Svg with gradients</span>
+
+  <span style="margin-left: 15px">Font: </span>
+  <input type="number" [(ngModel)]="fontSize" style="width: 40px">
 </div>
 <svg-js *ngIf="svgJs" [svgFilePath]="svgPath"></svg-js>
 <fabric-js *ngIf="fabricjs" [svgFilePath]="svgPath"></fabric-js>
-<pixi *ngIf="pixi" [isAntialias]="isPixiAntialias" [svgFilePath]="svgPath"></pixi>
+<pixi *ngIf="pixi" [isAntialias]="false" [svgFilePath]="svgPath"></pixi>
+<pixi *ngIf="pixi_antialis" [isAntialias]="true" [svgFilePath]="svgPath"></pixi>
 <konva-js *ngIf="konvaJs" [svgFilePath]="svgPath"></konva-js>
-<two-js *ngIf="twoJs" [svgFilePath]="svgPath"></two-js>
+<two-js *ngIf="twoJs_canvas" [svgFilePath]="svgPath" [useWebGl]="false"></two-js>
+<two-js *ngIf="twoJs_webGl" [svgFilePath]="svgPath" [useWebGl]="true"></two-js>

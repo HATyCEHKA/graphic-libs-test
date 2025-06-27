@@ -13,7 +13,7 @@ import {
   rotationAngle,
   spacing,
   squareSize,
-  squaresPerRow, stroke, isCreateGroup, getColor, useRandomColors
+  squaresPerRow, stroke, isCreateGroup, getColor, useRandomColors, correctPixels
 } from '../util/coord.util';
 
 import Two from 'two.js';
@@ -30,6 +30,9 @@ import {ZUI} from "two.js/extras/jsm/zui";
 export class TwojsComponent implements OnInit, OnDestroy {
   @Input()
   svgFilePath:string = '';
+
+  @Input()
+  useWebGl:boolean = false;
 
   @ViewChild('redactor', { static: true })
   protected redactor!: ElementRef;
@@ -48,7 +51,8 @@ export class TwojsComponent implements OnInit, OnDestroy {
       height: canvasHeight,
       //type:Two.Types.svg
       //type:Two.Types.webgl
-      type:Two.Types.canvas
+      //type:Two.Types.canvas
+      type: this.useWebGl? Two.Types.webgl : Two.Types.canvas
     }).appendTo(this.redactor.nativeElement);
 
     this.zui = new ZUI(this.two.scene);
@@ -69,7 +73,7 @@ export class TwojsComponent implements OnInit, OnDestroy {
       this.rects=[];
     }
 
-    let rects = await this.createObjects(count);
+    await this.createObjects(count);
     this.two?.update();
     console.log("5 of 5. Finish creating!", (Date.now()-t)/ 1000 + "sec");
 
@@ -97,19 +101,17 @@ export class TwojsComponent implements OnInit, OnDestroy {
     if(isSvg) {
       if(count>10000) return [];
       return new Promise<Array<Shape>>((resolve) => {
-        let createdCount = 0;
-        for (let i = 0; i < count; i++) {
-          this.two!.load(this.svgFilePath, (svg: Group) => {
-            svg.center();
-            this.setPropsAndAdd(svg, i);
-            createdCount++;
+        this.two!.load(this.svgFilePath, (svg_original: Group) => {
+          svg_original.center();
 
-            if (createdCount >= count - 1) {
-              console.log("4 of 5. Created all objects");
-              resolve(this.rects);
-            }
-          });
-        }
+          for (let i = 0; i < count; i++) {
+            let svg = svg_original.clone();
+            this.setPropsAndAdd(svg, i);
+          }
+
+          console.log("4 of 5. Created all objects");
+          resolve(this.rects);
+        });
       });
     }
     else{
@@ -142,8 +144,7 @@ export class TwojsComponent implements OnInit, OnDestroy {
           text.size = fontSize;
           text.fill = stroke;
           let box = text.getBoundingClientRect();
-          let scale = Math.min(squareSize / (box.width - 1) / 1.5, squareSize / (box.height - 1) / 1.5);
-          text.scale = scale;
+          text.scale = Math.min(squareSize / (box.width - 1) / 1.5, squareSize / (box.height - 1) / 1.5);
           group.add(rect, text);
           this.setPropsAndAdd(group, i);
         }
@@ -159,7 +160,8 @@ export class TwojsComponent implements OnInit, OnDestroy {
     let sizeDiff = isCreateGroup ? 1: 0;
     let scale = Math.min(squareSize / (box.width - sizeDiff), squareSize / (box.height - sizeDiff));
     //console.log("Size: ", box, "; Scale: ", scale);
-    rect.position.set(c.x + squareSize / 2 + spacing - 0.5, c.y + squareSize / 2 + spacing - 0.5);
+    let posDiff = correctPixels && !this.useWebGl? 0.5 : 0;
+    rect.position.set(c.x + squareSize / 2 + spacing - posDiff, c.y + squareSize / 2 + spacing - posDiff);
     if(Math.abs(scale - 1) > 0.2)
       rect.scale = scale;
 
