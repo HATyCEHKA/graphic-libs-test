@@ -3,8 +3,9 @@
   <button (click)="createTwoJs_canvas()" style="margin-left: 20px">create Two.js Canvas</button>
   <button (click)="createTwoJs_webGl()" style="margin-left: 20px">create Two.js WebGl</button>
   <button (click)="createFabricJs()" style="margin-left: 20px">create fabricjs</button>
-  <button (click)="createPixi_antialias()" style="margin-left: 20px">create pixi Antialias</button>
   <button (click)="createPixi()" style="margin-left: 20px">create pixi</button>
+  <button (click)="createPixi_antialias()" style="margin-left: 20px">create pixi Bitmap</button>
+  <button (click)="createPixi_calcFont()" style="margin-left: 20px">create pixi CalcFont</button>
   <button (click)="createSvgJs()" style="margin-left: 20px">create SVG.js</button>
 
   <span style="margin-left: 15px">Rotation speed: </span>
@@ -33,8 +34,9 @@
 </div>
 <svg-js *ngIf="svgJs" [svgFilePath]="svgPath"></svg-js>
 <fabric-js *ngIf="fabricjs" [svgFilePath]="svgPath"></fabric-js>
-<pixi *ngIf="pixi" [isAntialias]="false" [svgFilePath]="svgPath"></pixi>
-<pixi *ngIf="pixi_antialis" [isAntialias]="true" [svgFilePath]="svgPath"></pixi>
+<pixi *ngIf="pixi" [bitmapText]="false" [calcFontSize]="false" [svgFilePath]="svgPath"></pixi>
+<pixi *ngIf="pixi_antialis" [bitmapText]="true" [calcFontSize]="false" [svgFilePath]="svgPath"></pixi>
+<pixi *ngIf="pixi_calcFont" [bitmapText]="false" [calcFontSize]="true" [svgFilePath]="svgPath"></pixi>
 <konva-js *ngIf="konvaJs" [svgFilePath]="svgPath"></konva-js>
 <two-js *ngIf="twoJs_canvas" [svgFilePath]="svgPath" [useWebGl]="false"></two-js>
 <two-js *ngIf="twoJs_webGl" [svgFilePath]="svgPath" [useWebGl]="true"></two-js>

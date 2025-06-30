@@ -149,7 +149,7 @@ export class FabricjsComponent implements OnInit, OnDestroy {
           let text = new FabricText('Text', {fill: stroke, fontSize: fontSize, fontFamily: 'arial'});
           let scale = Math.min(squareSize / text.width / 1.5, squareSize / text.height / 1.5);
           text.scale(scale);
-          text.top = -correctPixels? 0.5 : 0;
+          text.top = -(correctPixels? 0.5 : 0);
           let group = new Group([rect, text]);
           this.setPropsAndAdd(group, i, sel);
         }

@@ -6,7 +6,17 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {Application, Assets, Container, Graphics, Text, TextStyle, Ticker} from 'pixi.js';
+import {
+  Application,
+  Assets,
+  Container,
+  Graphics,
+  Text,
+  TextStyle,
+  Ticker,
+  BitmapText,
+  AbstractText, Matrix, Renderer
+} from 'pixi.js';
 import {
   canvasHeight,
   canvasWidth, correctPixels, fill, fontSize, getColor,
@@ -25,7 +35,9 @@ import {
 })
 export class PixiComponent implements OnInit, OnDestroy {
   @Input()
-  isAntialias:boolean = false;
+  bitmapText:boolean = false;
+  @Input()
+  calcFontSize:boolean = false;
   @Input()
   svgFilePath:string = '';
 
@@ -44,12 +56,13 @@ export class PixiComponent implements OnInit, OnDestroy {
         background: '#ffffff',
         //preference: 'webgpu',
         //preference: 'webgl',
-        antialias: this.isAntialias,
-        //autoDensity: true,
+        antialias: true,
+        autoDensity: true,
         powerPreference: 'high-performance',
         //powerPreference: 'low-power',
         //resolution: 1, //лучше не трогать, появляются тормоза и никаких улучшений
-        //useBackBuffer: true
+        resolution: this.bitmapText? 2 : 1,//Увеличивает четкость текста, но очень сказывается на производительности. Выставление именно у текста не помогает
+        //useBackBuffer: true,
       });
     this.redactor.nativeElement.appendChild(this.app!.canvas);
   }
@@ -114,21 +127,55 @@ export class PixiComponent implements OnInit, OnDestroy {
     }
     else {
       for (let i = 0; i < count; i++) {
+        const createText = (): AbstractText=>{
+          let text:AbstractText;
+
+          if(this.bitmapText) {
+            text = new BitmapText({text: 'Text', style: {fontFamily: 'arial', fill: stroke, fontSize: fontSize * 10}});
+
+            //увеличивает время создания до 24сек на 100тыс
+            // BitmapFont.install({
+            //   name: 'my', style: {fontFamily: 'arial', fill: stroke, fontSize: fontSize * fontEncrease}, resolution: 1,
+            //   textureStyle: {
+            //     scaleMode: 'linear',
+            //   }
+            // });
+            //text = new BitmapText({text: 'Text', style: {fontFamily: 'my'}});
+
+            // //увеличивает время создания до 50сек на 100тыс
+            // text = new HTMLText({
+            //   text: 'Text',
+            //   style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'}),
+            //   roundPixels: false,
+            //   textureStyle: {
+            //     scaleMode: 'linear',
+            //   }
+            // });
+          }
+          else {
+            let textOpts = {
+              text: 'Text',
+              style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'}),
+              roundPixels: true,
+            };
+            text = this.calcFontSize? new MyText(textOpts) : new Text(textOpts);
+          }
+
+          return text;
+        }
+
         if(!isCreateGroup) {
-          let rect =  (i % 2 === 0) ?
-            new Graphics().rect(0, 0, squareSize-1, squareSize-1).stroke({width:1, color: stroke/*, pixelLine: true*/}).fill(useRandomColors? getColor(i) : fill) :
-            new Text({text: 'Text', style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'})});
+          let rect = (i % 2 === 0) ?
+            new Graphics().rect(0, 0, squareSize-1, squareSize-1).fill(useRandomColors? getColor(i) : fill).stroke({width:1, color: stroke}):
+            createText();
+
           this.setPropsAndAdd(rect, i);
         }
         else {
-          let rect = new Graphics().rect(0, 0, squareSize, squareSize).stroke({
-            width: 1,
-            color: stroke/*, pixelLine: true*/
-          }).fill(useRandomColors? getColor(i) : fill);
-          let text = new Text({
-            text: 'Text',
-            style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'})
-          });
+          let rect = new Graphics().rect(0, 0, squareSize, squareSize)
+            .fill(useRandomColors? getColor(i) : fill)
+            .stroke({width: 1, color: stroke});
+          let text = createText();
           let scale = Math.min(squareSize / text.width / 1.5, squareSize / text.height / 1.5);
 
           text.scale.set(scale);
@@ -168,4 +215,36 @@ export class PixiComponent implements OnInit, OnDestroy {
       });
     });
   }
+
+  protected setScale(){
+    for(let rect of this.rects)
+      rect.scale.set(rect.scale.x*1.5);
+
+    this.app?.render();
+  }
+}
+
+export class MyText extends Text{
+  override onRender =  (renderer: Renderer) : void | null=> {
+    let m = this.getGlobalTransform(new Matrix(), true);
+    let scalex = Math.sqrt(Math.pow(m.a, 2) + Math.pow(m.c, 2));
+    //let scaley = Math.sqrt(Math.pow(m.b, 2) + Math.pow(m.d, 2));
+
+    let fs = Math.round(scalex * this.style.fontSize);
+
+    if(this.style.fontSize!=fs) {
+      //console.log("update font size", scalex, this.scale.x, fontSize, this.style.fontSize, fs);
+      this.renderable = false;
+
+      this.style.fontSize = fs;
+      this.scale.set(this.scale.x/scalex);
+
+      if(this.pivot.x)
+        this.pivot.set(this.width / 2, this.height / 2)
+
+      this.renderable = true;
+
+    }
+  }
+
 }

@@ -1,5 +1,8 @@
 <div style="margin: 10px 0">
-  <span style="margin: 0 50px; font-weight: bold">PIXI</span>
+  <span style="margin: 0 0 0 50px; font-weight: bold">PIXI</span>
+  <span *ngIf="bitmapText" style="margin: 0 50px 0 0; font-weight: bold"> - Bitmap text</span>
+  <span *ngIf="calcFontSize" style="margin: 0 50px 0 0; font-weight: bold"> - Calc Font Size</span>
+  <span *ngIf="!calcFontSize && !bitmapText" style="margin: 0 50px 0 0; font-weight: bold"> - Original</span>
   <button (click)="changeAnimation()" style="margin-right: 20px">{{isAnimation? "stop" : "start"}} animation</button>
   <button (click)="setZoom(1)" style="margin-right: 20px">zoom 100%</button>
   <button (click)="setZoom(3)" style="margin-right: 20px">zoom 300%</button>
@@ -7,6 +10,8 @@
   <button (click)="createScene(1000)">1000</button>
   <button (click)="createScene(5000)">5000</button>
   <button (click)="createScene(10000)">10000</button>
-  <button (click)="createScene(100000)">100 000</button>
+  <button (click)="createScene(50000)" style="margin-left: 20px">50 000</button>
+
+  <button style="display: none" (click)="setScale()">scale</button>
 </div>
 <div #redactor class="pixi"></div>

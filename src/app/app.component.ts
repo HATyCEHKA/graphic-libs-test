@@ -29,6 +29,7 @@ export class AppComponent {
   protected fabricjs: boolean = false;
   protected pixi: boolean = false;
   protected pixi_antialis: boolean = false;
+  protected pixi_calcFont: boolean = false;
   protected twoJs_canvas: boolean = false;
   protected twoJs_webGl: boolean = false;
   protected svgPath = svgFilePath;
@@ -66,6 +67,12 @@ export class AppComponent {
     this.cdr.detectChanges();
   }
 
+  createPixi_calcFont() {
+    this.closeAll();
+    this.pixi_calcFont = true;
+    this.cdr.detectChanges();
+  }
+
   createTwoJs_canvas() {
     this.closeAll();
     this.twoJs_canvas = true;
@@ -79,7 +86,7 @@ export class AppComponent {
   }
 
   private closeAll(): void {
-    this.konvaJs = this.fabricjs = this.pixi = this.pixi_antialis = this.svgJs = this.twoJs_canvas = this.twoJs_webGl = false;
+    this.konvaJs = this.fabricjs = this.pixi = this.pixi_antialis = this.pixi_calcFont = this.svgJs = this.twoJs_canvas = this.twoJs_webGl = false;
   }
 
   protected get rotationAngle() {
