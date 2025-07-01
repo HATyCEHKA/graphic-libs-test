@@ -1,40 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 89.5 89.5" xmlns:v="https://vecta.io/nano">
-  <style>
-    <![CDATA[.B{stroke-width:.326}.C{stroke:#666}.D{stroke:#4d4d4d}]]>
-  </style>
-  <g id="IoTa_Rotation_On">
+<svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" width="90" height="90">
+  <rect height="90" width="90" stroke-width="0" fill-opacity="0" fill="red"></rect>
+<!--  <style>-->
+<!--    <![CDATA[.B{stroke-width:.326}.C{stroke:#666}.D{stroke:#4d4d4d}]]>-->
+<!--  </style>-->
+  <defs>
     <linearGradient id="A" gradientUnits="userSpaceOnUse" x1="26.809" y1="30.851" x2="24.769" y2="39.105">
       <stop offset="0" stop-color="gray"/>
       <stop offset="1" stop-color="gray" stop-opacity="0"/>
     </linearGradient>
-    <path d="M46.6 40.9C31.56 28.75 11.53 20.46 5.96 27.68.06 35.35 11.9 46.1 26.5 44.4c8.1-.94 7.27-1.07 15.78 3.48" fill="url(#A)" class="B C"/>
     <linearGradient id="B" gradientUnits="userSpaceOnUse" x1="60.196" y1="60.014" x2="66.151" y2="47.523">
       <stop offset="0" stop-color="gray"/>
       <stop offset="1" stop-color="gray" stop-opacity="0"/>
     </linearGradient>
-    <path d="M42.33 48C57.37 60.14 77.4 68.43 82.96 61.2c5.9-7.66-5.94-18.43-20.53-16.73-8.1.94-7.27 1.07-15.78-3.48" fill="url(#B)" class="B C"/>
     <linearGradient id="C" gradientUnits="userSpaceOnUse" x1="28.938" y1="61.906" x2="40.499" y2="64.389">
       <stop offset="0" stop-color="gray"/>
       <stop offset="1" stop-color="gray" stop-opacity="0"/>
     </linearGradient>
-    <path d="M40.92 42.3C28.77 57.36 20.48 77.38 27.7 82.95c7.66 5.9 18.43-5.94 16.73-20.53-.94-8.1-1.07-7.27 3.48-15.78" fill="url(#C)" class="B C"/>
     <linearGradient id="D" gradientUnits="userSpaceOnUse" x1="58.072" y1="27.24" x2="47.986" y2="23.845">
       <stop offset="0" stop-color="gray"/>
       <stop offset="1" stop-color="gray" stop-opacity="0"/>
     </linearGradient>
-    <path d="M48 46.6C60.16 31.54 68.45 11.5 61.23 5.95 53.56.04 42.8 11.9 44.5 26.48c.94 8.1 1.07 7.27-3.48 15.78" fill="url(#D)" class="B C"/>
-  </g>
-  <g transform="translate(-55.292 -84.44)">
     <radialGradient id="E" cx="1010.155" cy="551.922" r="8.822" gradientTransform="matrix(0.4926 0.4926 -0.4926 0.4926 -125.6213 -640.2693)" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#fff"/>
       <stop offset=".418" stop-color="#fff"/>
       <stop offset="1" stop-color="#ccc"/>
     </radialGradient>
-    <circle cx="100.09" cy="129.15" r="6.03" fill="url(#E)" stroke="#333" class="B"/>
     <radialGradient id="F" cx="1010.155" cy="551.922" r="4.41" gradientTransform="matrix(0.4926 0.4926 -0.4926 0.4926 -125.6213 -640.2693)" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="gray"/>
       <stop offset="1" stop-color="gray" stop-opacity="0"/>
     </radialGradient>
-    <circle cx="100.09" cy="129.15" r="3.02" fill="url(#F)" stroke="#333" class="B"/>
+  </defs>
+  <g stroke-width="0.7" stroke="#333">
+    <path d="M46.6 40.9C31.56 28.75 11.53 20.46 5.96 27.68.06 35.35 11.9 46.1 26.5 44.4c8.1-.94 7.27-1.07 15.78 3.48" fill="url(#A)" />
+    <path d="M42.33 48C57.37 60.14 77.4 68.43 82.96 61.2c5.9-7.66-5.94-18.43-20.53-16.73-8.1.94-7.27 1.07-15.78-3.48" fill="url(#B)" />
+    <path d="M40.92 42.3C28.77 57.36 20.48 77.38 27.7 82.95c7.66 5.9 18.43-5.94 16.73-20.53-.94-8.1-1.07-7.27 3.48-15.78" fill="url(#C)"/>
+    <path d="M48 46.6C60.16 31.54 68.45 11.5 61.23 5.95 53.56.04 42.8 11.9 44.5 26.48c.94 8.1 1.07 7.27-3.48 15.78" fill="url(#D)"/>
+  </g>
+  <g stroke-width="0.7" stroke="#333" transform="translate(-55.292 -84.44)">
+    <circle cx="100.09" cy="129.15" r="6.03" fill="url(#E)" stroke="#333"/>
+    <circle cx="100.09" cy="129.15" r="3.02" fill="url(#F)" stroke="#333"/>
   </g>
 </svg>

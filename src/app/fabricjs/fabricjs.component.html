@@ -11,6 +11,6 @@
 </div>
 <div style="position: relative;">
   <canvas #redactor class="fabricjs"></canvas>
-  //overlay для перехвата событий мыши, из-за которых встают анимации при движении курсора
+<!--  overlay для перехвата событий мыши, из-за которых встают анимации при движении курсора-->
   <div *ngIf="!canvas?.selection" style="position: absolute; background: red; opacity: 0; left: 0; top: 0" [style.width.px]="redactor.clientWidth" [style.height.px]="redactor.clientHeight"></div>
 </div>

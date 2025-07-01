@@ -15,7 +15,7 @@ import {
   TextStyle,
   Ticker,
   BitmapText,
-  AbstractText, Matrix, Renderer
+  AbstractText, Matrix, ObservablePoint, PointData, TextOptions
 } from 'pixi.js';
 import {
   canvasHeight,
@@ -158,7 +158,7 @@ export class PixiComponent implements OnInit, OnDestroy {
               style: new TextStyle({fill: stroke, fontSize: fontSize, fontFamily: 'arial'}),
               roundPixels: true,
             };
-            text = this.calcFontSize? new MyText(textOpts) : new Text(textOpts);
+            text = this.calcFontSize? new MyText(textOpts, fontSize) : new Text(textOpts);
           }
 
           return text;
@@ -179,7 +179,8 @@ export class PixiComponent implements OnInit, OnDestroy {
           let scale = Math.min(squareSize / text.width / 1.5, squareSize / text.height / 1.5);
 
           text.scale.set(scale);
-          text.position.set((squareSize - text.width) / 2 , (squareSize - text.height - 2) / 2);
+          let bounds = text.getBounds();
+          text.position.set((squareSize - bounds.width) / 2 , (squareSize - bounds.height) / 2);
 
           let group = new Container();
           group.addChild(rect);
@@ -199,11 +200,12 @@ export class PixiComponent implements OnInit, OnDestroy {
     let scale = Math.min(squareSize / (rect.width - sizeDiff), squareSize / (rect.height - sizeDiff));
     //console.log("Size: ", rect.width, "; Scale: ", scale);
     rect.pivot.set(rect.width / 2, rect.height / 2);
-    if(Math.abs(scale - 1) > 0.2)
-      rect.scale.set(scale);
 
     let posDiff = correctPixels? 0.5 : 0;
     rect.position.set(c.x + (squareSize - sizeDiff) / 2 + spacing + posDiff, c.y + (squareSize - sizeDiff) / 2 + spacing + posDiff);
+
+    if(Math.abs(scale - 1) > 0.2)
+      rect.scale.set(scale);
 
     this.rects.push(rect);
   }
@@ -225,26 +227,93 @@ export class PixiComponent implements OnInit, OnDestroy {
 }
 
 export class MyText extends Text{
-  override onRender =  (renderer: Renderer) : void | null=> {
+  constructor(options?: TextOptions, fontSize?:number){
+    super(options);
+
+    if(fontSize)
+      this.userFontSize = fontSize;
+
+    const observer = {
+      _onUpdate: () => {
+        this.onRender();
+
+        this.position.set(this.position.x + this.getBounds().width * (this.userScale.x - 1) / 2, this.position.y + this.getBounds().height * (this.userScale.y - 1) / 2);
+      },
+    };
+
+    this.userScale = new ObservablePoint(observer,1,1);
+  }
+
+  private readonly userScale:ObservablePoint;
+
+  override get scale(): ObservablePoint {
+    return this.userScale;
+  }
+
+  override set scale(value: PointData | number) {
+    let sx = this.userScale.x;
+    let sy = this.userScale.y;
+    if(Number.isFinite(value))
+      sx = sy = value as number;
+    else if (value){
+      let point = value as PointData;
+      sx = point.x;
+      sy = point.y;
+    }
+    this.userScale.set(sx, sy);
+  }
+
+  private userFontSize: number = 12;
+  get fontSize(): number {
+    return this.userFontSize;
+  }
+
+  set fontSize(value: number) {
+    this.userFontSize = value;
+  }
+
+  override onRender =  () : void | null=> {
     let m = this.getGlobalTransform(new Matrix(), true);
     let scalex = Math.sqrt(Math.pow(m.a, 2) + Math.pow(m.c, 2));
     //let scaley = Math.sqrt(Math.pow(m.b, 2) + Math.pow(m.d, 2));
 
-    let fs = Math.round(scalex * this.style.fontSize);
+    let fs = Math.round(scalex / super.scale.x * this.userFontSize * this.userScale.x);
 
     if(this.style.fontSize!=fs) {
-      //console.log("update font size", scalex, this.scale.x, fontSize, this.style.fontSize, fs);
+      let newScale = super.scale.x / scalex;
+      //console.log("update font size", scalex, super.scale.x, this.userScale.x, this.style.fontSize,this.userFontSize, fs, newScale);
       this.renderable = false;
 
       this.style.fontSize = fs;
-      this.scale.set(this.scale.x/scalex);
+
+      super.scale.set(newScale);
 
       if(this.pivot.x)
-        this.pivot.set(this.width / 2, this.height / 2)
+        this.pivot.set(this.width / 2, this.height / 2);
 
       this.renderable = true;
-
     }
   }
 
+  // override onRender =  (renderer: Renderer) : void | null=> {
+  //   let m = this.getGlobalTransform(new Matrix(), true);
+  //   let scalex = Math.sqrt(Math.pow(m.a, 2) + Math.pow(m.c, 2));
+  //   //let scaley = Math.sqrt(Math.pow(m.b, 2) + Math.pow(m.d, 2));
+  //
+  //   let fs = Math.round(scalex * this.style.fontSize);
+  //
+  //   if(this.style.fontSize!=fs) {
+  //     //console.log("update font size", scalex, this.scale.x, fontSize, this.style.fontSize, fs);
+  //     this.renderable = false;
+  //
+  //     this.style.fontSize = fs;
+  //     this.scale.set(this.scale.x/scalex);
+  //
+  //     if(this.pivot.x)
+  //       this.pivot.set(this.width / 2, this.height / 2)
+  //
+  //     this.renderable = true;
+  //
+  //   }
+  // }
 }
